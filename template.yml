@@ -1,0 +1,83 @@
+#Required
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    MemorySize: 128
+    CodeUri: src/
+    Timeout: 600
+    
+Resources: 
+  dynamodb:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: fiap-trips
+      AttributeDefinitions:
+        - AttributeName: "PK"
+          AttributeType: "S"
+        - AttributeName: "SK"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "PK"
+          KeyType: "HASH"
+        - AttributeName: "SK"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+      GlobalSecondaryIndexes:
+        -
+          IndexName: "SK-index"
+          KeySchema:
+            - AttributeName: "SK"
+              KeyType: "HASH"
+              Projection:
+                ProjectionType: "ALL"
+              ProvisionedThroughput:
+                ReadCapacityUnits: 5
+                WriteCapacityUnits: 5
+
+  saveTrip:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.saveTripController.handler
+      Events:
+        apiForLambda:
+          Type: Api 
+          Properties:
+            Path: /trip
+            Method: post
+      Policies:
+        DynamoDBWritePolicy:
+          TableName: !Ref dynamodb
+  # tripByCountry:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     Handler: index.getTripByCountry
+  #     Events:
+  #       apiForLambda:
+  #         Type: Api 
+  #         Properties:
+  #           Path: /trip/{countryId}
+  #           Method: get
+  #     Policies:
+  #       DynamoDBReadPolicy:
+  #         TableName: !Ref dynamodb
+  # tripByCountryAndCity:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     Handler: index.getTripByCountryAndCity
+  #     Events:
+  #       apiForLambda:
+  #         Type: Api 
+  #         Properties:
+  #           Path: /trip/{countryId}/{cityId}
+  #           Method: get
+  #     Policies:
+  #       DynamoDBReadPolicy:
+  #         TableName: !Ref dynamodb
+      
+

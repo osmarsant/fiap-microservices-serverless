@@ -1,0 +1,38 @@
+{
+  "name": "fiap-microservices-serverless",
+  "version": "1.0.0",
+  "description": "Serverless apliction using SAM Template ",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/osmarsant/fiap-microservices-serverless.git"
+  },
+  "keywords": [
+    "serverless",
+    "sam",
+    "aws"
+  ],
+  "author": "Osmar Santos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/osmarsant/fiap-microservices-serverless/issues"
+  },
+  "homepage": "https://github.com/osmarsant/fiap-microservices-serverless#readme",
+  "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
+    "@hapi/joi": "^17.1.1",
+    "@middy/validator": "^2.1.1",
+    "aws-sdk": "^2.892.0",
+    "middy": "^0.36.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "serverless": "^2.38.0",
+    "serverless-offline": "^6.9.0"
+  }
+}
