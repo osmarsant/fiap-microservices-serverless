@@ -21,6 +21,8 @@ $ npm install
 # Fazer deploy do projeto na amazon para criação dos recursos
 $ sam deploy --guided 
 
+# responser com [y] (yes) para todas as opções do prompt.
+
 
 # Rodar o projeto localmente
 
