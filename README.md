@@ -2,6 +2,10 @@
 
 ## Pré requisitos 
 
+NodeJS versão 14
+
+> https://nodejs.org/pt-br/download/
+
 AWS SAM CLI
 > https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 
