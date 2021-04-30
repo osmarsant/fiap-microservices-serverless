@@ -5,9 +5,10 @@ Globals:
   Function:
     Runtime: nodejs12.x
     MemorySize: 128
-    CodeUri: src/
     Timeout: 600
-    
+    Environment:
+      Variables:
+        TABLE_NAME: fiap-trips
 Resources: 
   dynamodb:
     Type: AWS::DynamoDB::Table
@@ -17,6 +18,8 @@ Resources:
         - AttributeName: "PK"
           AttributeType: "S"
         - AttributeName: "SK"
+          AttributeType: "S"
+        - AttributeName: "Type"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "PK"
@@ -34,16 +37,26 @@ Resources:
           KeySchema:
             - AttributeName: "SK"
               KeyType: "HASH"
-              Projection:
-                ProjectionType: "ALL"
-              ProvisionedThroughput:
-                ReadCapacityUnits: 5
-                WriteCapacityUnits: 5
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+          Projection: 
+            ProjectionType: "ALL"
+        -
+          IndexName: "Type-index"
+          KeySchema:
+            - AttributeName: "Type"
+              KeyType: "HASH"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+          Projection: 
+            ProjectionType: "ALL"
 
   saveTrip:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.saveTripController.handler
+      Handler: src/index.saveTrip
       Events:
         apiForLambda:
           Type: Api 
@@ -51,33 +64,72 @@ Resources:
             Path: /trip
             Method: post
       Policies:
-        DynamoDBWritePolicy:
-          TableName: !Ref dynamodb
-  # tripByCountry:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Handler: index.getTripByCountry
-  #     Events:
-  #       apiForLambda:
-  #         Type: Api 
-  #         Properties:
-  #           Path: /trip/{countryId}
-  #           Method: get
-  #     Policies:
-  #       DynamoDBReadPolicy:
-  #         TableName: !Ref dynamodb
-  # tripByCountryAndCity:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Handler: index.getTripByCountryAndCity
-  #     Events:
-  #       apiForLambda:
-  #         Type: Api 
-  #         Properties:
-  #           Path: /trip/{countryId}/{cityId}
-  #           Method: get
-  #     Policies:
-  #       DynamoDBReadPolicy:
-  #         TableName: !Ref dynamodb
-      
+        - DynamoDBCrudPolicy:
+            TableName: !Ref dynamodb
+  listAllTrips:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.listAllTrips
+      Events:
+        apiForLambda:
+          Type: Api 
+          Properties:
+            Path: /trip
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref dynamodb
+  listAllCities:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.listAllCities
+      Events:
+        apiForLambda:
+          Type: Api 
+          Properties:
+            Path: /city
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref dynamodb
+  listAllCountries:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.listAllCountries
+      Events:
+        apiForLambda:
+          Type: Api 
+          Properties:
+            Path: /country
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref dynamodb
+  listTripsByCountry:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.listTripsByCountry
+      Events:
+        apiForLambda:
+          Type: Api 
+          Properties:
+            Path: /trip/{countryId}
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref dynamodb
+  listTripsByCountryAndCity:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.listTripsByCountryAndCity
+      Events:
+        apiForLambda:
+          Type: Api 
+          Properties:
+            Path: /trip/{countryId}/{cityId}
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref dynamodb
+
 

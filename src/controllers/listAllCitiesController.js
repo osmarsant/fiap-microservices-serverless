@@ -5,12 +5,9 @@ module.exports = ({TripService, ResponseUtil}) => {
     handler: async (event, context, callback) => {
         context.callbackWaitsForEmptyEventLoop = false
         try {
-
-          const trip = event.body
-
-          const result = await TripService.saveTrip(trip)
+          const result = await TripService.getAllCities()
           const response = ResponseUtil.build({
-            statusCode: 201,
+            statusCode: 200,
             body: JSON.stringify(result)
           })
   

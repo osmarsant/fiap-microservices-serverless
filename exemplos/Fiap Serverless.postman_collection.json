@@ -1,0 +1,151 @@
+{
+	"info": {
+		"_postman_id": "d37e95ef-a17f-4539-a9de-02b45e4228c0",
+		"name": "Fiap Serverless",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Save Trip",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"country\": \"Portugal\",\n    \"city\": \"Lisboa\",\n    \"date\": \"2021-04-24T16:01:00.925Z\",\n    \"reason\": \"Vacation\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/trip",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"trip"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List All Trips",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/trip",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"trip"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List All Countries",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/country",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"country"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List All Cities",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/city",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"city"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Trips By Country and City",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/trip/:countryId/:cityId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"trip",
+						":countryId",
+						":cityId"
+					],
+					"variable": [
+						{
+							"key": "countryId",
+							"value": "6a335268-7c9d-48e2-8356-b9e10695b805"
+						},
+						{
+							"key": "cityId",
+							"value": "c24e5acb-896a-4c4e-8d3e-2b39e9e99ca0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Trips By Country",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/trip/:countryId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"trip",
+						":countryId"
+					],
+					"variable": [
+						{
+							"key": "countryId",
+							"value": "6a335268-7c9d-48e2-8356-b9e10695b805"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -13,7 +13,7 @@ provider:
   timeout: 30
 
 functions:
-  register:
+  saveTrip:
     handler: src/index.saveTrip
     memorySize: 500
     description: Register a new trip
@@ -21,6 +21,96 @@ functions:
       - http:
           path: /trip
           method: POST
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+  listAllTrips:
+    handler: src/index.listAllTrips
+    memorySize: 500
+    description: List all trips
+    events:
+      - http:
+          path: /trip
+          method: GET
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+  listAllCities:
+    handler: src/index.listAllCities
+    memorySize: 500
+    description: List all cities
+    events:
+      - http:
+          path: /city
+          method: GET
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+  listAllCountries:
+    handler: src/index.listAllCountries
+    memorySize: 500
+    description: List all countries
+    events:
+      - http:
+          path: /country
+          method: GET
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+  listTripsByCountry:
+    handler: src/index.listTripsByCountry
+    memorySize: 500
+    description: List trips by country
+    events:
+      - http:
+          path: /trip/{countryId}
+          method: GET
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+  listTripsByCountryAndCity:
+    handler: src/index.listTripsByCountryAndCity
+    memorySize: 500
+    description: List trips by country and city
+    events:
+      - http:
+          path: /trip/{countryId}/{cityId}
+          method: GET
           cors:
             origin: '*'
             headers:

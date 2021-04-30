@@ -2,11 +2,12 @@
 
 module.exports = ({ dynamodb, uuid, config }) => {
   const saveCountry = async (country) => {
-    const countryId = `COUNTRY-${uuid()}`
+    const countryId = `${uuid()}`
     const params = {
       TableName: config.dynamodb.tableName,
       Item: {
-        PK: 'COUNTRY',
+        Type: 'COUNTRY',
+        PK: countryId,
         SK: countryId,
         name: country,
         createdAt: new Date().toISOString(),
@@ -18,10 +19,11 @@ module.exports = ({ dynamodb, uuid, config }) => {
   }
 
   const saveCity = async (countryId, city) => {
-    const cityId = `CITY-${uuid()}`
+    const cityId = `${uuid()}`
     const params ={
       TableName: config.dynamodb.tableName,
       Item: {
+        Type: 'CITY',
         PK: cityId,
         SK: countryId,
         name: city,
@@ -32,12 +34,15 @@ module.exports = ({ dynamodb, uuid, config }) => {
     return cityId
   }
 
-  const saveTrip = async ({ cityId, city, reason, date }) => {
+  const saveTrip = async ({ cityId, country, city, reason, date }) => {
+    const tripId = `${uuid()}`
     const params = {
       TableName: config.dynamodb.tableName,
       Item: {
-        PK: `TRIP-${uuid()}`,
+        PK: tripId,
         SK: `${cityId}`,
+        Type: 'TRIP',
+        country,
         city,
         reason,
         date,
@@ -45,17 +50,18 @@ module.exports = ({ dynamodb, uuid, config }) => {
       },
     }
     const result = await dynamodb.put(params).promise()
-    return `TRIP-${uuid()}`
+    return tripId;
   }
 
   const getCountry = async (country) => {
     const params = {
       TableName: config.dynamodb.tableName,
-      KeyConditionExpression: '#PK = :pk',
-      ExpressionAttributeNames: { '#PK': 'PK', '#name': 'name' },
+      IndexName: 'Type-index',
+      KeyConditionExpression: '#Type = :type',
+      ExpressionAttributeNames: { '#Type': 'Type', '#name': 'name' },
       FilterExpression: 'contains(#name, :name)',
       ExpressionAttributeValues: {
-        ':pk': 'COUNTRY',
+        ':type': 'COUNTRY',
         ':name': country,
       },
     }
@@ -80,18 +86,162 @@ module.exports = ({ dynamodb, uuid, config }) => {
     return result.Items[0]
   }
 
-  const getTrips = async (cityId) => {
+  const getCitiesByCountry = async (countryId) => {
     const params = {
       TableName: config.dynamodb.tableName,
-      IndexName: 'SK-index',
-      KeyConditionExpression: '#SK = :sk',
-      ExpressionAttributeNames: { '#SK': 'SK' },
+        IndexName: 'Type-index',
+        KeyConditionExpression: '#Type = :type',
+        FilterExpression: '#SK = :sk',
+        ExpressionAttributeNames: { '#SK': 'SK', '#Type': 'Type'},
+        ExpressionAttributeValues: {
+          ':type': 'CITY',
+          ':sk': `${countryId}`,
+        },
+    }
+
+    const result = await dynamodb.query(params).promise()
+    return result.Items
+  }
+
+  const getCityById = async (countryId, cityId) => {
+    const params = {
+      TableName: config.dynamodb.tableName,
+        KeyConditionExpression: '#PK = :pk and #SK = :sk',
+        FilterExpression: '#Type = :type',
+        ExpressionAttributeNames: { '#PK': 'PK', '#SK': 'SK', '#Type': 'Type'},
+        ExpressionAttributeValues: {
+          ':type': 'CITY',
+          ':pk': `${cityId}`,
+          ':sk': `${countryId}`,
+        },
+    }
+
+    const result = await dynamodb.query(params).promise()
+    return result.Items
+  }
+
+  
+
+  const getTripsByCountry = async (countryId) => {
+
+    const cities = await getCitiesByCountry(countryId);
+    let trips = [];
+
+    for(const city of cities){
+      const params = {
+        TableName: config.dynamodb.tableName,
+        IndexName: 'Type-index',
+        KeyConditionExpression: '#Type = :type',
+        FilterExpression: '#SK = :sk',
+        ExpressionAttributeNames: { '#SK': 'SK', '#Type': 'Type'},
+        ExpressionAttributeValues: {
+          ':type': 'TRIP',
+          ':sk': `${city.PK}`,
+        },
+      }
+      const result = await dynamodb.query(params).promise()
+      trips = trips.concat(result.Items)
+    }
+
+    return trips.map((trip) =>({
+      id: trip.PK,
+      cityId: trip.SK,
+      country: trip.country,
+      city: trip.city,
+      date: trip.date,
+      reason: trip.reason
+      }
+    ));
+   
+  }
+
+  const getAllTrips = async () => {
+    const params = {
+      TableName: config.dynamodb.tableName,
+      IndexName: 'Type-index',
+      KeyConditionExpression: '#Type = :type',
+      ExpressionAttributeNames: { '#Type': 'Type' },
       ExpressionAttributeValues: {
-        ':sk': `${cityId}`,
+        ':type': 'TRIP',
       },
     }
     const result = await dynamodb.query(params).promise()
-    return result.Items
+    return result.Items.map((trip) =>({
+      id: trip.PK,
+      cityId: trip.SK,
+      country: trip.country,
+      city: trip.city,
+      date: trip.date,
+      reason: trip.reason
+      }
+    ))
+  }
+
+
+  const getAllCities = async () => {
+    const params = {
+      TableName: config.dynamodb.tableName,
+      IndexName: 'Type-index',
+      KeyConditionExpression: '#Type = :type',
+      ExpressionAttributeNames: { '#Type': 'Type'},
+      ExpressionAttributeValues: {
+        ':type': 'CITY',
+      },
+    }
+    const result = await dynamodb.query(params).promise()
+    return result.Items.map((city) => ({
+      id: city.PK,
+      countryId: city.SK,
+      name: city.name
+    }))
+  }
+
+  const getAllCountries = async () => {
+    const params = {
+      TableName: config.dynamodb.tableName,
+      IndexName: 'Type-index',
+      KeyConditionExpression: '#Type = :type',
+      ExpressionAttributeNames: { '#Type': 'Type'},
+      ExpressionAttributeValues: {
+        ':type': 'COUNTRY',
+      },
+    }
+    const result = await dynamodb.query(params).promise()
+    return result.Items.map((country) => ({
+      id: country.PK,
+      name: country.name
+    }))
+  }
+
+  const getTripsByCountryAndCity = async (countryId, cityId) => {
+    const cities = await getCityById(countryId, cityId);
+    let trips = [];
+
+    for(const city of cities){
+      const params = {
+        TableName: config.dynamodb.tableName,
+        IndexName: 'Type-index',
+        KeyConditionExpression: '#Type = :type',
+        FilterExpression: '#SK = :sk',
+        ExpressionAttributeNames: { '#SK': 'SK', '#Type': 'Type'},
+        ExpressionAttributeValues: {
+          ':type': 'TRIP',
+          ':sk': `${city.PK}`,
+        },
+      }
+      const result = await dynamodb.query(params).promise()
+      trips = trips.concat(result.Items)
+    }
+
+    return trips.map((trip) =>({
+      id: trip.PK,
+      cityId: trip.SK,
+      country: trip.country,
+      city: trip.city,
+      date: trip.date,
+      reason: trip.reason
+      }
+    ));
   }
 
   return {
@@ -100,6 +250,11 @@ module.exports = ({ dynamodb, uuid, config }) => {
     saveTrip,
     getCountry,
     getCity,
-    getTrips,
+    getAllTrips,
+    getAllCities,
+    getAllCountries,
+    getTripsByCountryAndCity,
+    getTripsByCountry
+
   }
 }

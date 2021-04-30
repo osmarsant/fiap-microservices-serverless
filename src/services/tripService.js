@@ -17,10 +17,30 @@ module.exports = ({ TripRepository }) => {
         cityId = await TripRepository.saveCity(countryId, city)
 
       } else {
-        cityId = _city.SK;
+        cityId = _city.PK;
       }
-      const newTrip = await TripRepository.saveTrip({cityId, city, date, reason })
+      const newTrip = await TripRepository.saveTrip({cityId, country, city, date, reason })
       return newTrip;
+    },
+    getAllTrips: async () => {
+        const trips = await TripRepository.getAllTrips();
+        return trips;
+    },
+    getAllCities: async () => {
+      const cities = await TripRepository.getAllCities();
+        return cities;
+    },
+    getAllCountries: async () => {
+      const countries = await TripRepository.getAllCountries();
+        return countries;
+    },
+    getTripsByCountryAndCity: async (countryId, cityId) => {
+      const trips = await TripRepository.getTripsByCountryAndCity(countryId, cityId);
+      return trips;
+    },
+    getTripsByCountry: async (countryId) => {
+      const trips = await TripRepository.getTripsByCountry(countryId);
+      return trips;
     }
   }
 }
